@@ -18,8 +18,10 @@ namespace bin_div
         }
 
         OpenFileDialog dialog = new OpenFileDialog();
-        FileStream fs = null;
+        FileStream readStream = null;
         BinaryReader binReader = null;
+        FileStream writerStream = null;
+        BinaryWriter binWriter = null;
 
         String fileName = String.Empty;
         String richText = String.Empty;
@@ -32,9 +34,11 @@ namespace bin_div
 
         private void infoText(String str)
         {
-
+            richTextBox1.ForeColor = Color.Black;
+            richTextBox1.Text = str + System.Environment.NewLine;
         }
 
+       
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -43,11 +47,16 @@ namespace bin_div
             dialog.Filter = "bin文件(*.bin)|*.bin|所有文件(*.*)|*.*";
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                //textBox1.Text = dialog.FileName;    //显示名字
-                
                 fileName = dialog.FileName;
-                fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                binReader = new BinaryReader(fs);
+                using (readStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                {
+                    using (binReader = new BinaryReader(readStream))
+                    {
+
+                    }
+                }
+
+
                 //textBox2.Text = fs.Length.ToString();     //获取长度
 
                 //foreach (byte j in binReader.ReadChars(200))
@@ -68,7 +77,8 @@ namespace bin_div
         {
             long addrStart = 0;
             long addrEnd = 0;
-            if(String.IsNullOrEmpty(fileName))
+
+            if (String.IsNullOrEmpty(fileName))
             {
                 errorText("Please open bin file to split operation.");
                 return;
@@ -93,16 +103,41 @@ namespace bin_div
                 errorText("addr is not number.");
                 return;
             }
-            richTextBox1.ForeColor = Color.Black;
-            richTextBox1.Text = "ok."+ System.Environment.NewLine;
-            if (binReader != null)
+
+            try
             {
-                binReader.Close();
+
+                SaveFileDialog saveFDialog = new SaveFileDialog();
+                saveFDialog.Title = "保存bin文件";
+                saveFDialog.Filter = "bin文件|*.bin";
+                saveFDialog.RestoreDirectory = true;
+
+                if (saveFDialog.ShowDialog() == DialogResult.OK)
+                {
+                    String saveFileName = saveFDialog.FileName;
+                    infoText(saveFDialog.FileName);
+
+                    using (writerStream = new FileStream(saveFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                    {
+                        using (binWriter = new BinaryWriter(writerStream))
+                        {
+
+                        }
+                    }
+
+                    errorDeal();
+                }
+            }catch (Exception e1)
+            {
+                Console.WriteLine(e1.Message);
+
             }
-            if(fs != null)
-            { 
-                fs.Close();
-            }
+
+            richTextBox1.ForeColor = Color.Black;
+            richTextBox1.Text += "ok."+ System.Environment.NewLine;
+
+
+            errorDeal();
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
@@ -122,13 +157,26 @@ namespace bin_div
 
         private void Form1_Closing(object sender, EventArgs e)
         {
-            if(binReader != null)
+            errorDeal();
+        }
+
+        private void errorDeal()
+        {
+            if (binWriter != null)
+            {
+                binWriter.Close();
+            }
+            if (writerStream != null)
+            {
+                writerStream.Close();
+            }
+            if (binReader != null)
             {
                 binReader.Close();
             }
-            if(fs != null)
+            if (readStream != null)
             {
-                fs.Close();
+                readStream.Close();
             }
         }
 
