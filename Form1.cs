@@ -45,32 +45,36 @@ namespace bin_div
             dialog.Multiselect = false; //不能多个文件
             dialog.Title = "请选择文件";
             dialog.Filter = "bin文件(*.bin)|*.bin|所有文件(*.*)|*.*";
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            try
             {
-                fileName = dialog.FileName;
-                using (readStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    using (binReader = new BinaryReader(readStream))
+                    fileName = dialog.FileName;
+                    using (readStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                     {
-
+                        using (binReader = new BinaryReader(readStream))
+                        {
+                        }
                     }
+                    //textBox2.Text = fs.Length.ToString();     //获取长度
+
+                    //foreach (byte j in binReader.ReadChars(200))
+                    //{
+                    //    richText += j.ToString("X2");
+                    //    richText += " ";
+                    //}
+                    //richTextBox1.Text = richText;   //打印
+
+                    richTextBox1.ForeColor = Color.Black;
+                    richTextBox1.Text += "Load file: " + fileName + " success." + System.Environment.NewLine;
+
                 }
-
-
-                //textBox2.Text = fs.Length.ToString();     //获取长度
-
-                //foreach (byte j in binReader.ReadChars(200))
-                //{
-                //    richText += j.ToString("X2");
-                //    richText += " ";
-                //}
-                //richTextBox1.Text = richText;   //打印
-
-                richTextBox1.ForeColor = Color.Black;
-                richTextBox1.Text += "Load file: " + fileName + " success." + System.Environment.NewLine;
-
-
             }
+            catch (Exception e1)
+            {
+                throw e1;
+            }
+            
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -106,7 +110,6 @@ namespace bin_div
 
             try
             {
-
                 SaveFileDialog saveFDialog = new SaveFileDialog();
                 saveFDialog.Title = "保存bin文件";
                 saveFDialog.Filter = "bin文件|*.bin";
@@ -121,21 +124,22 @@ namespace bin_div
                     {
                         using (binWriter = new BinaryWriter(writerStream))
                         {
-
+                            //binWriter.Write(binReader.ReadChars(200));
                         }
                     }
 
-                    errorDeal();
+                   // errorDeal();
                 }
             }catch (Exception e1)
             {
                 Console.WriteLine(e1.Message);
+                errorDeal();
+                throw e1;
 
             }
 
             richTextBox1.ForeColor = Color.Black;
             richTextBox1.Text += "ok."+ System.Environment.NewLine;
-
 
             errorDeal();
         }
