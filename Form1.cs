@@ -74,7 +74,6 @@ namespace bin_div
             {
                 throw e1;
             }
-            
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -127,7 +126,6 @@ namespace bin_div
 
                     using (writerStream = new FileStream(saveFileName, FileMode.Create, FileAccess.Write))
                     {
-                        
                         using (binWriter = new BinaryWriter(writerStream))
                         {
                             binWriter.Write(zkDataCopyBuffer, addrStart, addrLen);
@@ -142,7 +140,6 @@ namespace bin_div
             {
                 Console.WriteLine(e1.Message);
                 throw e1;
-
             }
 
             errorDeal();
@@ -150,13 +147,11 @@ namespace bin_div
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-
         }
 
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
         }
 
         private void Form1_Closing(object sender, EventArgs e)
