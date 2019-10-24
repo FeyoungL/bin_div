@@ -25,6 +25,10 @@ namespace bin_div
 
         String fileName = String.Empty;
         String richText = String.Empty;
+        Byte[] zkDataCopyBuffer = null;
+
+        int addrLen = 0;
+
 
         private void errorText(String str)
         {
@@ -35,7 +39,7 @@ namespace bin_div
         private void infoText(String str)
         {
             richTextBox1.ForeColor = Color.Black;
-            richTextBox1.Text = str + System.Environment.NewLine;
+            richTextBox1.Text += str + System.Environment.NewLine;
         }
 
        
@@ -45,6 +49,7 @@ namespace bin_div
             dialog.Multiselect = false; //不能多个文件
             dialog.Title = "请选择文件";
             dialog.Filter = "bin文件(*.bin)|*.bin|所有文件(*.*)|*.*";
+
             try
             {
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -54,20 +59,15 @@ namespace bin_div
                     {
                         using (binReader = new BinaryReader(readStream))
                         {
+
+                            richTextBox1.ForeColor = Color.Black;
+                            richTextBox1.Text = "";
+                            richTextBox1.Text += "Load file: " + fileName + " success." + System.Environment.NewLine;
+                            //把整个文件获取到zkDataCopyBuffer里
+                            zkDataCopyBuffer = binReader.ReadBytes((int)readStream.Length);
+                            infoText("file Length: " + ((int)readStream.Length).ToString() + " Byte");
                         }
                     }
-                    //textBox2.Text = fs.Length.ToString();     //获取长度
-
-                    //foreach (byte j in binReader.ReadChars(200))
-                    //{
-                    //    richText += j.ToString("X2");
-                    //    richText += " ";
-                    //}
-                    //richTextBox1.Text = richText;   //打印
-
-                    richTextBox1.ForeColor = Color.Black;
-                    richTextBox1.Text += "Load file: " + fileName + " success." + System.Environment.NewLine;
-
                 }
             }
             catch (Exception e1)
@@ -79,34 +79,8 @@ namespace bin_div
 
         private void button2_Click(object sender, EventArgs e)
         {
-            long addrStart = 0;
-            long addrEnd = 0;
-
-            if (String.IsNullOrEmpty(fileName))
-            {
-                errorText("Please open bin file to split operation.");
-                return;
-            }
-            if (String.IsNullOrEmpty(textBox1.Text) || String.IsNullOrEmpty(textBox2.Text))
-            {
-                errorText("addr is null or Empty.");
-                return;
-            }
-            try
-            {
-                addrStart = long.Parse(textBox1.Text);
-                addrEnd = long.Parse(textBox2.Text);
-                if(addrEnd<=addrStart)
-                {
-                    errorText("The start of Address >= The end of Address.");
-                    return;
-                }
-            }
-            catch
-            {
-                errorText("addr is not number.");
-                return;
-            }
+            int addrStart = 0;
+            int addrEnd = 0;
 
             try
             {
@@ -115,31 +89,61 @@ namespace bin_div
                 saveFDialog.Filter = "bin文件|*.bin";
                 saveFDialog.RestoreDirectory = true;
 
+                if (String.IsNullOrEmpty(fileName))
+                {
+                    errorText("Please open bin file to split operation.");
+                    return;
+                }
+                if (String.IsNullOrEmpty(textBox1.Text) || String.IsNullOrEmpty(textBox2.Text))
+                {
+                    errorText("addr is null or Empty.");
+                    return;
+                }
+                try
+                {
+                    addrStart = Convert.ToInt32(textBox1.Text, 16);
+                    addrEnd = Convert.ToInt32(textBox2.Text, 16);
+                    if (addrEnd <= addrStart)
+                    {
+                        errorText("The start of Address >= The end of Address.");
+                        return;
+                    }
+                }
+                catch
+                {
+                    errorText("addr is not number.");
+                    return;
+                }
+
+                addrLen = addrEnd - addrStart;
+
                 if (saveFDialog.ShowDialog() == DialogResult.OK)
                 {
-                    String saveFileName = saveFDialog.FileName;
-                    infoText(saveFDialog.FileName);
+                    //检查
+                    if (saveFDialog.CheckFileExists)
+                        return;
 
-                    using (writerStream = new FileStream(saveFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                    String saveFileName = saveFDialog.FileName;
+
+                    using (writerStream = new FileStream(saveFileName, FileMode.Create, FileAccess.Write))
                     {
+                        
                         using (binWriter = new BinaryWriter(writerStream))
                         {
-                            //binWriter.Write(binReader.ReadChars(200));
+                            binWriter.Write(zkDataCopyBuffer, addrStart, addrLen);
+
+                            richTextBox1.ForeColor = Color.Black;
+                            richTextBox1.Text += "Save " + saveFileName + " success." + System.Environment.NewLine;
                         }
                     }
 
-                   // errorDeal();
                 }
             }catch (Exception e1)
             {
                 Console.WriteLine(e1.Message);
-                errorDeal();
                 throw e1;
 
             }
-
-            richTextBox1.ForeColor = Color.Black;
-            richTextBox1.Text += "ok."+ System.Environment.NewLine;
 
             errorDeal();
         }
@@ -149,10 +153,6 @@ namespace bin_div
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -184,5 +184,6 @@ namespace bin_div
             }
         }
 
+   
     }
 }
