@@ -27,6 +27,7 @@ namespace bin_div
         String richText = String.Empty;
         Byte[] zkDataCopyBuffer = null;
 
+        int fileLen = 0;
         int addrLen = 0;
 
 
@@ -59,13 +60,13 @@ namespace bin_div
                     {
                         using (binReader = new BinaryReader(readStream))
                         {
-
                             richTextBox1.ForeColor = Color.Black;
                             richTextBox1.Text = "";
                             richTextBox1.Text += "Load file: " + fileName + " success." + System.Environment.NewLine;
                             //把整个文件获取到zkDataCopyBuffer里
-                            zkDataCopyBuffer = binReader.ReadBytes((int)readStream.Length);
-                            infoText("file Length: " + ((int)readStream.Length).ToString() + " Byte");
+                            fileLen = (int)readStream.Length;
+                            zkDataCopyBuffer = binReader.ReadBytes(fileLen);
+                            infoText("file Length: " + fileLen.ToString() + "(0x" + fileLen.ToString("X") + ")" + " Byte");
                         }
                     }
                 }
@@ -105,6 +106,12 @@ namespace bin_div
                     if (addrEnd <= addrStart)
                     {
                         errorText("The start of Address >= The end of Address.");
+                        return;
+                    }
+
+                    if (addrStart>=fileLen || addrEnd>=fileLen)
+                    {
+                        errorText("addrStart or addrEnd >= The lenght of file.");
                         return;
                     }
                 }
