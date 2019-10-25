@@ -67,6 +67,17 @@ namespace bin_div
                             fileLen = (int)readStream.Length;
                             zkDataCopyBuffer = binReader.ReadBytes(fileLen);
                             infoText("file Length: " + fileLen.ToString() + "(0x" + fileLen.ToString("X") + ")" + " Byte");
+
+                            if (binReader != null)
+                            {
+                                binReader.Dispose();
+                                binReader.Close();
+                            }
+                        }
+                        if (readStream != null)
+                        {
+                            readStream.Dispose();
+                            readStream.Close();
                         }
                     }
                 }
@@ -170,18 +181,22 @@ namespace bin_div
         {
             if (binWriter != null)
             {
+                binWriter.Dispose();
                 binWriter.Close();
             }
             if (writerStream != null)
             {
+                writerStream.Dispose();
                 writerStream.Close();
             }
             if (binReader != null)
             {
+                binReader.Dispose();
                 binReader.Close();
             }
             if (readStream != null)
             {
+                readStream.Dispose();
                 readStream.Close();
             }
         }
