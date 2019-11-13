@@ -120,7 +120,7 @@ namespace bin_div
                         return;
                     }
 
-                    if (addrStart>=fileLen || addrEnd>=fileLen)
+                    if (addrStart>=fileLen || addrEnd>fileLen)
                     {
                         errorText("addrStart or addrEnd >= The lenght of file.");
                         return;
